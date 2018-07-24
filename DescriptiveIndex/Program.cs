@@ -24,7 +24,6 @@ namespace DescriptiveIndex
                 Console.WriteLine(e);
             }
             Console.ReadLine();
-
         }
     }
 }

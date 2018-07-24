@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace DescriptiveIndex
 {
@@ -19,11 +20,15 @@ namespace DescriptiveIndex
 
         public void AddIndexByString(string s)
         {
-            var word = s.Substring(0, s.IndexOf(" "));
-            s = s.Remove(0, s.IndexOf(" "));
-            string[] tokens = s.Split(',');
-            int[] convertedItems = Array.ConvertAll(tokens, int.Parse);
-            AddIndex(word, convertedItems);
+            if (CheckStringForAdd(s))
+            {
+                var word = s.Substring(0, s.IndexOf(" "));
+                s = s.Remove(0, s.IndexOf(" "));
+                string[] tokens = s.Split(',');
+                int[] convertedItems = Array.ConvertAll(tokens, int.Parse);
+                AddIndex(word, convertedItems);
+            }
+            else { throw new FormatException("Uncorrect string format"); }
         }
 
         public void DeleteElement(string word)
@@ -51,6 +56,7 @@ namespace DescriptiveIndex
             {
                 Console.WriteLine(string.Join(" ", IndexDictionary[word]));
             }
+            else { Console.WriteLine("Word not found"); }
         }
 
         private static string SetPathOfFile()
@@ -93,7 +99,11 @@ namespace DescriptiveIndex
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                if (e is IOException || e is ObjectDisposedException)
+                {
+                    Console.WriteLine("Exception in PushToFile " + e.Message);
+                }
+                throw;
             }
         }
 
@@ -111,6 +121,11 @@ namespace DescriptiveIndex
             {
                 throw new FileNotFoundException("Invalid path: File not found");
             }
+        }
+
+        private bool CheckStringForAdd(string s)
+        {
+            return Regex.IsMatch(s, @"^[a-zA-Z]+\s[0-9,]+$");
         }
     }
 }
